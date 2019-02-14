@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <title>IPFS-Ethereum Storage Dapp</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="js/web3.min.js"></script>
+    <script type="text/javascript" src="js/ipfs.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</head>
+
+<body>
+    <br/>
+    <h2>IPFS + Ethereum Storage Application</h2>
+
+    <hr/>
+    <br/>
+
+    <p>Start by opening the developer console to interact with the application. Verify that the console shows we are connect to our IPFS and geth clients. The following steps will guide you through setting up and operating our data storage solution using IPFS and Ethereum.</p>
+
+    <ol>
+        <li><code>deployStorage()</code>: Deploy the storage contract to your Ethereum blockchain. The geth client will show it received the deployment transaction, return a transaction hash to the console, and print out the contract transaction address after successful deployment.</li>
+        <br/>
+        <li><code>storeContent(URL)</code>: Store the specified URL content to IPFS. The IPFS client will receive the URL content for storage and return an IPFS address that will be provided to the smart contract.</li>
+        <br/>
+        <li><code>storeAddress(IPFS address)</code>: Submit a transaction to the Ethereum contract for storage on our blockchain.</li>
+        <br/>
+        <li><code>fetchContent()</code>: Gets the last stored IPFS address in the Ethereum contract and queries IPFS for the associated URL.</li>
+    </ol>
+
+    <br/>
+    <hr/>
+    <br/>
+
+    <p>Here is a concrete example. Let's say we want to upload an image of the <a href="https://ethereum.org/images/wallpaper-homestead.jpg">Ethereum Homestead wallpaper</a>. For example purposes, my IPFS hash address for this wallpaper resolves to "QmPJLNMiAp3QoCKdGAgzshNRbQiZ8wQmyjYkcUHJZzQ19u". Then we have all the pieces to run the storage application.</p>
+
+    <p>Run the commands:</p>
+    <ol>
+        <li><code>deployStorage()</code></li>
+        <li><code>storeContent("https://ethereum.org/images/wallpaper-homestead.jpg")</code></li>
+        <li><code>storeAddress("QmPJLNMiAp3QoCKdGAgzshNRbQiZ8wQmyjYkcUHJZzQ19u")</code></li>
+        <li><code>fetchContent()</code></li>
+    </ol>
+
+    <p>This process will then return: "http://localhost:8080/ipfs/QmPJLNMiAp3QoCKdGAgzshNRbQiZ8wQmyjYkcUHJZzQ19u"</p>
+
+    <br/>
+    <hr/>
+    <br/>
+
+    <p>Troubleshooting: To verify there is a positive ether balance, run <code>getBalance()</code> to check the Ethereum wallet balance.</p>
+
+    <br/>
+    <hr/>
+</body>

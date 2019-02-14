@@ -1,0 +1,22 @@
+{
+  "name": "IPFS-StorageDapp",
+  "version": "1.0.0",
+  "description": "Decentralized storage implementation using IPFS",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "lite-server",
+    "clean:dev": "rm -r ./build/contracts",
+    "start:geth": "geth --datadir=\"~/.geth\" --networkid 23422  --rpc --rpccorsdomain=\"*\" --rpcport=\"8545\" --minerthreads=\"1\" --mine --nodiscover --maxpeers=0 --unlock 0 console",
+    "start:ipfs": "ipfs daemon"
+  },
+  "keywords": [],
+  "author": "Artsiom Sinitski",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.4.0"
+  }
+}
