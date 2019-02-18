@@ -60,18 +60,34 @@ App = {
     initStorage: function() {
         App.account = web3.eth.accounts[0];
 
-        $.getJSON("SimpleStorage.json", function(simpleStorage) {
-                App.contracts.simpleStorage = TruffleContract(simpleStorage);
-                App.contracts.simpleStorage.setProvider(App.web3Provider);        
-                App.contracts.simpleStorage.deployed().then(function(simpleStorage) {
-                    console.log("'SimpleStorage' contract address: ", simpleStorage.address);
+        $.getJSON("IpfsStorage.json", function(ipfsStorage) {
+                App.contracts.ipfsStorage = TruffleContract(ipfsStorage);
+                App.contracts.ipfsStorage.setProvider(App.web3Provider);        
+                App.contracts.ipfsStorage.deployed().then(function(ipfsStorage) {
+                    console.log("'IPFS Storage' contract address: ", ipfsStorage.address);
                 })
         });
     },
 
-
+    //TO DO: if invalid URL, function still returns IPFS hash
     storeContent: function(url) {
+        /*
         ipfs.add(url, function(err, result) {
+            if (err) {
+                console.error("Content submission error:", err);
+                return false;
+            } else if (result && result[0] && result[0].Hash) {
+                console.log("Content successfully stored! IPFS address:");
+                console.log(result[0].Hash);
+            } else {
+                console.error("Unresolved content submission error");
+                return null;
+            }
+        }); */
+
+        ipfs.add(url, function(err, result) {
+            console.log("Result: ", result);
+            console.log("Erorr: ", err);
             if (err) {
                 console.error("Content submission error:", err);
                 return false;
@@ -93,7 +109,7 @@ App = {
             return;
         }*/
         let storageInstance;
-        App.contracts.simpleStorage.deployed().then(function(instance) {
+        App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
             let metaData = {from: App.account, to: storageInstance.address, gas: 300000}
             return storageInstance.setStoredData.sendTransaction(data, metaData);
@@ -108,10 +124,8 @@ App = {
 
     fetchContent: function() {
         let storageInstance;
-
-        App.contracts.simpleStorage.deployed().then(function(instance) {
+        App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
-            //return storageInstance.getStoredData.call(function (result) {
             return storageInstance.getStoredData();
         }).then(function(result) {
             var URL = App.ipfsAddress + "/" + result.toString();
