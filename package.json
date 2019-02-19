@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean:dev": "rm -r ./build/contracts",
     "start:dev": "lite-server",
-    "start:geth": "geth --datadir=\"~/.geth\" --networkid 23422  --rpc --rpccorsdomain=\"*\" --rpcport=\"8545\" --minerthreads=\"1\" --mine --nodiscover --maxpeers=0 --unlock 0 console",
+    "start:geth": "geth --datadir=\"~/.geth\" --networkid 23422  --rpc --rpccorsdomain=\"*\" --rpcport=\"8545\" --minerthreads=\"1\" --mine --nodiscover --maxpeers=0 --unlock 0",
     "start:ipfs": "ipfs daemon"
   },
   "keywords": [],
