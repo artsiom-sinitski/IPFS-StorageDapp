@@ -29,7 +29,6 @@ contract('IpfsStorage', function(accounts) {
             assert.equal(result.toString(), desc1, 'has the correct media description 1');
             return storageInstance.storeMediaToIPFS(ipfsAddress1, mediaType1, desc1);
         }).then(function(receipt) {
-            //console.log("store again Result: ", receipt);
             assert.equal(receipt.logs.length, 0, 'no "MediaStoredOnIPFS" event trigerred');
             return storageInstance.getStoredDataSize();
         }).then(function(len) {
@@ -48,8 +47,22 @@ contract('IpfsStorage', function(accounts) {
             return storageInstance.getStoredDataDescription(ipfsAddress2);
         }).then(function(result) {
             assert.equal(result.toString(), desc2, 'has the correct media description 2');
-        })
-        
+            return storageInstance.getStoredDataType("NonExistingKey1");
+        }).then(function(dataType) {
+            assert.equal(dataType.toString(), "null", 'this record should not exist');
+            return storageInstance.getStoredDataDescription("NonExistingKey1");
+        }).then(function(dataDescription) {
+            assert.equal(dataDescription.toString(), "null", 'this record should not exist');
+            return storageInstance.getStoredDataIndex("NonExistingKey1");
+        }).then(function(dataIndex) {
+            assert.equal(dataIndex.toNumber(), -1, 'this key should not exist');
+            return storageInstance.getStoredKey(1);
+        }).then(function(ipfsHash) {
+            assert.equal(ipfsHash.toString(), ipfsAddress2, 'this key should not exist');
+            return storageInstance.getStoredKey(99);
+        }).then(function(ipfsHash) {
+            assert.equal(ipfsHash.toString(), "null", 'this key should not exist');
+        });
     });
 
 });

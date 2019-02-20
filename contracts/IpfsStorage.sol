@@ -8,7 +8,8 @@ contract IpfsStorage {
     struct IPFSmetaData {
         string mediaType;
         string description;
-        uint32 index; // 2^32 = 4,294,967,296
+        uint32 index; // from 0 .. 2^32 - 1 = 4,294,967,295
+        bool isExisting;  // for verifying key existence
     }
     // array containing unordered list of IPFS addresses
     string[] private storedDataIndexes;
@@ -32,44 +33,66 @@ contract IpfsStorage {
                               string memory _mediaType,
                               string memory _description)
       public returns (bool success) {
-        //require(keyExists(_ipfsAddress) == false, "duplicate IPFS address!");
-        if (!keyExists(_ipfsAddress)) {
-            //store the IPFS object in the mapping
-            storedData[_ipfsAddress].mediaType = _mediaType;
-            storedData[_ipfsAddress].description = _description;
-            //the '.push' method will return the new length of array
-            storedData[_ipfsAddress].index = uint32(storedDataIndexes.push(_ipfsAddress) - 1);
-            emit MediaStoredOnIPFS(_ipfsAddress, _mediaType, _description);
-            return true;
-        }
-        return false;
+        require(keyExists(_ipfsAddress) == false, "duplicate IPFS address!");
+        //if (!keyExists(_ipfsAddress)) {
+        storedData[_ipfsAddress].mediaType = _mediaType;
+        storedData[_ipfsAddress].description = _description;
+        //the '.push' method will return the new length of array
+        storedData[_ipfsAddress].index = uint32(storedDataIndexes.push(_ipfsAddress) - 1);
+        storedData[_ipfsAddress].isExisting = true; 
+        emit MediaStoredOnIPFS(_ipfsAddress, _mediaType, _description);
+            //return true;
+        //}
+        return true;
     }
 
     function getStoredDataType(string memory _ipfsAddress)
       public view returns (string memory dataType) {
+        //require(keyExists(_ipfsAddress) == true, "Key doesn't exist!");
+        if ( !keyExists(_ipfsAddress) )
+          return "null";
         return storedData[_ipfsAddress].mediaType;
     }
 
     function getStoredDataDescription(string memory _ipfsAddress)
       public view returns (string memory dataDescription) {
+        //require(keyExists(_ipfsAddress) == true, "Key doesn't exist!");
+        if ( !keyExists(_ipfsAddress) )
+          return "null";
         return storedData[_ipfsAddress].description;
     }
 
     function getStoredDataIndex(string memory _ipfsAddress)
-      public view returns (uint32 dataIndex) {
+      public view returns (int dataIndex) {
+        /*  Keep getting the error below while unit testing =>
+         *  "Error: Returned values aren't valid, did it run Out of Gas?"
+         *  so instead of using the 'require' method, use if's
+         */
+        //require(keyExists(_ipfsAddress) == true, "Key doesn't exist!");
+        if ( !keyExists(_ipfsAddress) )
+          return -1;
         return storedData[_ipfsAddress].index;
     }
 
     function getStoredDataSize() 
       public view returns (uint32 len) {
           return uint32(storedDataIndexes.length);
-      }
+    }
+
+    function getStoredKey(uint32 _index)
+      public view returns (string memory ipfsHash) {
+        //require(_index >= 0 && _index < storedDataIndexes.length - 1, "Invalid index!");
+        if (_index <= 0 || _index > storedDataIndexes.length - 1 )
+          return "null";
+        return storedDataIndexes[_index];
+    } 
 
     //****** Contract Public Interface ******
     //***************************************
     function keyExists(string memory _key)
      private view returns (bool keyFound) {
-        if (storedDataIndexes.length <= 0 ) {
+        if ( storedDataIndexes.length <= 0 ||
+            !storedData[_key].isExisting ) {
             return false;
         }
         bytes memory bk1 = bytes(storedDataIndexes[storedData[_key].index]);

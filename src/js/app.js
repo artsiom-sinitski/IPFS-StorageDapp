@@ -24,7 +24,6 @@ App = {
         ipfs = IpfsApi(App.ipfsHost, App.ipfsAPIPort);
         App.ipfsAddress = "http://" + App.ipfsHost + ':' + App.ipfsWebPort + "/ipfs";
 
-
         ipfs.swarm.peers(function (err, res) {
             if (err) {
                 console.error(err);
@@ -92,8 +91,12 @@ App = {
                 console.error("Content submission error:", err);
                 return false;
             } else if (result && result[0] && result[0].Hash) {
+                let ipfsHash = result[0].Hash;
+                let mediaType = "image";
+                let desc = "Ethereum foundation image";
                 console.log("Content successfully stored! IPFS address:");
-                console.log(result[0].Hash);
+                console.log(ipfsHash);
+                return App.storeAddress(ipfsHash, mediaType, desc);
             } else {
                 console.error("Unresolved content submission error");
                 return null;
@@ -102,7 +105,7 @@ App = {
     },
 
 
-    storeAddress: function(data) {
+    storeAddress: function(ipfsHash, mediaType, description) {
         /*
         if (window.currentData == data) {
             console.error("Overriding existing data with same data");
@@ -112,7 +115,7 @@ App = {
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
             let metaData = {from: App.account, to: storageInstance.address, gas: 300000}
-            return storageInstance.setStoredData.sendTransaction(data, metaData);
+            return storageInstance.storeMediaToIPFS.sendTransaction(ipfsHash, mediaType, description, metaData);
         }).then(function(result) {
             console.log("Address successfully stored! Transaction hash:");
             console.log(result)
