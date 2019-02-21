@@ -37,6 +37,7 @@ App = {
 
 
     /* web3 initialization */
+    //TO DO: implement MetaMask functionality
     initWeb3: function() {
         /*if (typeof web3 !== 'undefined') {
             // If a web3 instance is already provided by Meta Mask.
@@ -68,76 +69,85 @@ App = {
         });
     },
 
-    //TO DO: if invalid URL, function still returns IPFS hash
-    storeContent: function(url) {
-        /*
-        ipfs.add(url, function(err, result) {
-            if (err) {
-                console.error("Content submission error:", err);
-                return false;
-            } else if (result && result[0] && result[0].Hash) {
-                console.log("Content successfully stored! IPFS address:");
-                console.log(result[0].Hash);
-            } else {
-                console.error("Unresolved content submission error");
-                return null;
-            }
-        }); */
 
-        ipfs.add(url, function(err, result) {
-            console.log("Result: ", result);
-            console.log("Erorr: ", err);
-            if (err) {
-                console.error("Content submission error:", err);
-                return false;
-            } else if (result && result[0] && result[0].Hash) {
-                let ipfsHash = result[0].Hash;
-                let mediaType = "image";
-                let desc = "Ethereum foundation image";
-                console.log("Content successfully stored! IPFS address:");
-                console.log(ipfsHash);
-                return App.storeAddress(ipfsHash, mediaType, desc);
-            } else {
-                console.error("Unresolved content submission error");
-                return null;
-            }
-        });
+    //************************* Sample Image URLs *******************************
+    //
+    //  (0) -->  https://www.ethereum.org/images/wallpaper-homestead.jpg
+    //  (1) -->  https://www.ethereum.org/images/bad-robot@2x.png
+    //  (2) -->  https://www.ethereum.org/images/tutorial/deploy-new-contract.png
+    //  (3) -->  https://www.ethereum.org/images/tutorial/edit-contract.png
+    //
+    //**************************************************************************** 
+
+    //TO DO: get the user input from a web page
+    storeContent: function(url) {
+        //make sure the url points to a valid resource
+        $.get(url).done(function(result) {
+            ipfs.add(url, function(error, result) {
+                console.log("Result: ", result);
+                console.log("ErRor: ", error);
+                if (error) {
+                    console.error("Content submission error:", error);
+                    return false;
+                } else if (result && result[0] && result[0].Hash) {
+                    let ipfsHash = result[0].Hash;
+                    let mediaType = "image";
+                    let desc = "Ethereum foundation image";
+
+                    console.log("Content successfully stored! IPFS address:");
+                    console.log(ipfsHash);
+                    return App.storeAddress(ipfsHash, mediaType, desc);
+                } else {
+                    console.error("Unresolved content submission error!");
+                    return null;
+                }
+            });
+        }).fail(function(error) {
+            console.log("Invalid URL: ", error.status, error.statusText);
+        })
     },
 
 
+    //TO DO: disallow adding duplicate media data entries (partially works):
+    // currently, App.storeContent() function generates a new transactions
+    // every time it is called, though storageContract never adds a duplicate entry
     storeAddress: function(ipfsHash, mediaType, description) {
-        /*
-        if (window.currentData == data) {
-            console.error("Overriding existing data with same data");
-            return;
-        }*/
         let storageInstance;
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
             let metaData = {from: App.account, to: storageInstance.address, gas: 300000}
-            return storageInstance.storeMediaToIPFS.sendTransaction(ipfsHash, mediaType, description, metaData);
+            return storageInstance.storeMediaToIPFS.sendTransaction(ipfsHash, mediaType, description, metaData);        
         }).then(function(result) {
             console.log("Address successfully stored! Transaction hash:");
-            console.log(result)
+            console.log(result);
         }).catch(function(error) {
-            console.log("storeAddress() ->", error)
+            console.log("storeAddress(): ", error);
         });
     },
 
-
+  
     fetchContent: function() {
         let storageInstance;
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
-            return storageInstance.getStoredData();
-        }).then(function(result) {
-            var URL = App.ipfsAddress + "/" + result.toString();
-            console.log("Content successfully retrieved! IPFS address:");
-            console.log(result);
-            console.log("Content URL:");
-            console.log(URL);
-        }).catch(function(error) {
-            console.log("fetchContent() ->", error);
+            return storageInstance.getStoredDataSize().then(function(len) {
+                console.log("Storage Size: ", len.toNumber());
+                let length = len.toNumber();
+                for(let i = 0; i < length; i++) {
+                    storageInstance.getStoredDataRecordAtIndex(i).then(function(record) {
+                        console.log("Record("+ i +"): ", record);
+
+                        // [k, t, d] maps to [ipfsHash, mediaType, description]
+                        var [k, t, d] = record;
+                        var URL = App.ipfsAddress + "/" + record[0].toString();
+
+                        console.log("Content successfully retrieved! IPFS address:");
+                        console.log(record[0]);
+                        console.log("Content URL:");
+                        console.log("URL:", URL);
+                    });
+                }
+            });
         });
     },
 

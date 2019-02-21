@@ -62,7 +62,13 @@ contract('IpfsStorage', function(accounts) {
             return storageInstance.getStoredKey(99);
         }).then(function(ipfsHash) {
             assert.equal(ipfsHash.toString(), "null", 'this key should not exist');
+            return storageInstance.getStoredDataRecordAtIndex(1);
+        }).then(function(result) {
+            assert.equal(result.ipfsHash, ipfsAddress2, 'IPFS hash retrieved is not correct');
+            assert.equal(result.mediaType, mediaType2, 'media type retrieved is not correct');
+            assert.equal(result.desc, desc2, 'description retrieved is not correct');
         });
+        // Add a test trying to retrieve a record with incorrect index
     });
 
 });

@@ -8,13 +8,14 @@ contract IpfsStorage {
     struct IPFSmetaData {
         string mediaType;
         string description;
-        uint32 index; // from 0 .. 2^32 - 1 = 4,294,967,295
+        uint32 index;     // from 0 .. 2^32 - 1 = 4,294,967,295
         bool isExisting;  // for verifying key existence
     }
     // array containing unordered list of IPFS addresses
     string[] private storedDataIndexes;
     // maps IPFS object's address to its meta data
     mapping(string => IPFSmetaData) private storedData;
+    address owner;
 
     //*******EVENTS and MODIFIERS ************
     //****************************************
@@ -26,13 +27,16 @@ contract IpfsStorage {
     // }
     //****** Contract Public Interface ******
     //***************************************
-    constructor() public {}
+    constructor() public {
+      owner = msg.sender;
+    }
 
-    //TO DO: add the 'type' field
+
     function storeMediaToIPFS(string memory _ipfsAddress,
                               string memory _mediaType,
                               string memory _description)
       public returns (bool success) {
+        require(msg.sender == owner);
         require(keyExists(_ipfsAddress) == false, "duplicate IPFS address!");
         //if (!keyExists(_ipfsAddress)) {
         storedData[_ipfsAddress].mediaType = _mediaType;
@@ -85,9 +89,21 @@ contract IpfsStorage {
         if (_index <= 0 || _index > storedDataIndexes.length - 1 )
           return "null";
         return storedDataIndexes[_index];
-    } 
+    }
 
-    //****** Contract Public Interface ******
+    
+    function getStoredDataRecordAtIndex(uint32 _index) public view
+     returns(string memory ipfsHash, string memory mediaType, string memory desc) {
+        require(_index >= 0 && _index < storedDataIndexes.length);
+
+        string memory key = storedDataIndexes[_index];
+        IPFSmetaData memory r = storedData[key];
+        
+        return (key, r.mediaType, r.description);
+    }
+
+
+    //****** Contract Private Methods *******
     //***************************************
     function keyExists(string memory _key)
      private view returns (bool keyFound) {
