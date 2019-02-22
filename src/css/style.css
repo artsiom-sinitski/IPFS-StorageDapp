@@ -1,4 +1,25 @@
-html * {
-    color: #000 !important;
-    font-family: Arial !important;
- }
+@import "https://fonts.googleapis.com/css?family=Montserrat:400,700|Raleway:300,400";
+/* colors */
+/* tab setting */
+/* breakpoints */
+/* selectors relative to radio inputs */
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #efefef;
+  color: #333;
+  font-family: "Raleway";
+  height: 100%;
+}
+
+body h1 {
+  text-align: center;
+  color: #428BFF;
+  font-weight: 300;
+  padding: 40px 0 20px 0;
+  margin: 0;
+}
+

@@ -64,9 +64,63 @@ App = {
                 App.contracts.ipfsStorage = TruffleContract(ipfsStorage);
                 App.contracts.ipfsStorage.setProvider(App.web3Provider);        
                 App.contracts.ipfsStorage.deployed().then(function(ipfsStorage) {
-                    console.log("'IPFS Storage' contract address: ", ipfsStorage.address);
+                    console.log("IPFS Storage contract's address: ", ipfsStorage.address);
                 })
         });
+        return App.renderPage();
+    },
+
+
+    renderPage: function() {
+        web3.eth.getCoinbase(function(error, account) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log("Wallet account:", account);
+                $('#walletAddr').html(account);
+            }
+        });
+        return App.getBalance();
+    },
+
+
+    getBalance: function() {
+        web3.eth.getBalance(App.account, function(error, balance) {
+            if (error) {
+                console.log(error);
+            } else {
+                let bal = parseFloat(web3.fromWei(balance, "ether"));
+                console.log("Account balance: ", bal);
+                $('#accountBalance').html(bal);
+            }
+        });
+        return App.bindEvents();
+    },
+
+
+    bindEvents: function() {
+        $(document).on('click', '#FetchContentBtn', App.handleFetchContent);
+    },
+
+
+    handleStoreContent: function() {
+        let url = $('#URLinput').val();
+
+        $.get(url).done(function(result) {
+            return App.storeContent(url);
+        }).fail(function(error) {
+            console.log("Invalid URL: ", error.status, error.statusText);
+        });
+
+        $('#URLinput').val('');
+        $('#DescriptionInput').val('');
+        $('#MediaTypeDropdown').val('').text();
+    },
+
+
+    handleFetchContent: function() {
+        $('#StoredContentTable tbody').empty();
+        return App.fetchContent();
     },
 
 
@@ -81,30 +135,26 @@ App = {
 
     //TO DO: get the user input from a web page
     storeContent: function(url) {
-        //make sure the url points to a valid resource
-        $.get(url).done(function(result) {
-            ipfs.add(url, function(error, result) {
-                console.log("Result: ", result);
-                console.log("ErRor: ", error);
-                if (error) {
-                    console.error("Content submission error:", error);
-                    return false;
-                } else if (result && result[0] && result[0].Hash) {
-                    let ipfsHash = result[0].Hash;
-                    let mediaType = "image";
-                    let desc = "Ethereum foundation image";
+        ipfs.add(url, function(error, result) {
+            if (error) {
+                console.error("Content submission error:", error);
+                return false;
+            } else if (result && result[0] && result[0].Hash) {
+                let ipfsHash = result[0].Hash;
+                let mediaType = $('#MediaTypeDropdown :selected').text();
+                let desc = $('#DescriptionInput').val();
 
-                    console.log("Content successfully stored! IPFS address:");
-                    console.log(ipfsHash);
-                    return App.storeAddress(ipfsHash, mediaType, desc);
-                } else {
-                    console.error("Unresolved content submission error!");
-                    return null;
-                }
-            });
-        }).fail(function(error) {
-            console.log("Invalid URL: ", error.status, error.statusText);
-        })
+                console.log("storeContent->mediaType", mediaType);
+                console.log("storeContent->desc", desc);
+
+                console.log("Content successfully stored! IPFS address:");
+                console.log("IPFS hash: ", ipfsHash);
+                return App.storeAddress(ipfsHash, mediaType, desc);
+            } else {
+                console.error("Unresolved content submission error!");
+                return null;
+            }
+        });
     },
 
 
@@ -121,30 +171,25 @@ App = {
             console.log("Address successfully stored! Transaction hash:");
             console.log(result);
         }).catch(function(error) {
-            console.log("storeAddress(): ", error);
+            console.log(error);
         });
     },
 
-  
+    
     fetchContent: function() {
         let storageInstance;
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
             return storageInstance.getStoredDataSize().then(function(len) {
-                console.log("Storage Size: ", len.toNumber());
+                //console.log("Storage Size: ", len.toNumber());
                 let length = len.toNumber();
                 for(let i = 0; i < length; i++) {
                     storageInstance.getStoredDataRecordAtIndex(i).then(function(record) {
                         console.log("Record("+ i +"): ", record);
-
-                        // [k, t, d] maps to [ipfsHash, mediaType, description]
-                        var [k, t, d] = record;
-                        var URL = App.ipfsAddress + "/" + record[0].toString();
-
+                        
                         console.log("Content successfully retrieved! IPFS address:");
                         console.log(record[0]);
-                        console.log("Content URL:");
-                        console.log("URL:", URL);
+                        App.generateTableContent(record, i);
                     });
                 }
             });
@@ -152,16 +197,20 @@ App = {
     },
 
 
-    getBalance: function() {
-        web3.eth.getBalance(App.account, function(error, balance) {
-            if (error) {
-                console.log("getBalance() ->", error);
-            } else {
-                console.log(parseFloat(web3.fromWei(balance, "ether")));
-            }
-        });
+    generateTableContent: function(record, i) { 
+        // [k, t, d] maps to [ipfsHash, mediaType, description]
+        let [k, tp, dsc] = record;
+        let URL = App.ipfsAddress + "/" + k.toString();
+        let URL_link = "<a href=\"" + URL + " \"target=\"_blank\">" + "IPFS address " + (i+1) + "</a>"
+        let rowHTML = "<tr>";
+            rowHTML += "<td title=\"" + URL + "\">" + URL_link + "</td>";
+            rowHTML += "<td title=\"" + tp + "\">" + tp + "</td>";
+            rowHTML += "<td title=\"" + dsc + "\">" + dsc + "</td>";
+            rowHTML += "</tr>";
+    
+        $(rowHTML).prependTo('#StoredContentTable tbody');
     }
-}
+},
 
 
 $(function() {
