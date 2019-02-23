@@ -22,8 +22,9 @@ contract('IpfsStorage', function(accounts) {
         }).then(function(len) {
             assert.equal(len, 1, 'should be stored only a single IPFS hash');
             return storageInstance.storeMediaToIPFS(ipfsAddress1, mediaType1, desc1);
-        }).then(function(receipt) {
-            assert.equal(receipt.logs.length, 0, 'no "MediaStoredOnIPFS" event trigerred');
+        }).then(assert.fail).catch(function(error) {//(function(receipt) {
+            //assert.equal(receipt.logs.length, 0, 'no "MediaStoredOnIPFS" event trigerred');
+            assert(error.message.indexOf('revert') >= 0, 'should NOT be able to add a duplicate content');
             return storageInstance.getStoredDataSize();
         }).then(function(len) {
             assert.equal(len.toNumber(), 1, 'array should have 1 IPFS hash only');
@@ -34,10 +35,11 @@ contract('IpfsStorage', function(accounts) {
             assert.equal(receipt.logs[0].args.ipfsAddress, ipfsAddress2, 'logs the IPFS hash');
             return storageInstance.getStoredDataSize();
         }).then(function(len) {
-            assert.equal(len.toNumber(), 2, 'should now be stored 2 IPFS hashes');
+            assert.equal(len.toNumber(), 2, 'should contain 2 IPFS hashes');
             return storageInstance.getStoredDataIndex("NonExistingKey1");
-        }).then(function(dataIndex) {
-            assert.equal(dataIndex.toNumber(), -1, 'this key should not exist');
+        }).then(assert.fail).catch(function(error) {
+            //assert.equal(dataIndex.toNumber(), -1, 'this key should not exist');
+            assert(error.message.indexOf('revert') >= 0, 'this key should not be found');
             return storageInstance.getStoredDataRecordAtIndex(1);
         }).then(function(result) {
             assert.equal(result.ipfsHash, ipfsAddress2, 'IPFS hash retrieved is not correct');

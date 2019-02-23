@@ -42,9 +42,9 @@ contract IpfsStorage {
 
     function getStoredDataIndex(string memory _ipfsAddress)
       public view returns (int dataIndex) {
-        //require(keyExists(_ipfsAddress) == true, "Key doesn't exist!");
-        if ( !keyExists(_ipfsAddress) )
-          return -1;
+        require(keyExists(_ipfsAddress) == true, "The key is not found!");
+        // if ( !keyExists(_ipfsAddress) )
+        //   return -1;
         return storedData[_ipfsAddress].index;
     }
 
