@@ -20,15 +20,22 @@
         width: 99%;
       }
 
-      #tblLogos  {
+      #tableCopyright  {
         width: 100%;
+        border: none;
         table-layout: fixed;
-        border: 0px;
       }
 
-      img {
+      #ipfsLogo {
         width: 70px;
         height: 60px;
+        float: right;
+      }
+
+      #ethLogo {
+        width: 105px;
+        height: 70px;
+        float: left;
       }
 
       span[id=walletAddr],
@@ -109,20 +116,19 @@
     </div>
 
     <div class="container"></div>
-      <table id="tblLogos">
+      <table id="tableCopyright">
           <colgroup>
             <col style="width:35%">
             <col style="width:30%">
             <col style="width:35%">
           </colgroup>
           <tr class="text-center">
-              <td><img src="images/Ethereum_logo.png"></td>
-              <td>Copyright © 2019 <br/> by <br/>Artsiom Sinitski</td>
-              <td><img src="images/ipfs-logo.svg"></td>
+              <td><img id="ipfsLogo" src="images/ipfs-logo.svg"></td>
+              <td>Copyright © 2019 <br/>by<br/>Artsiom Sinitski</td>
+              <td><img id="ethLogo" src="images/Ethereum_logo.png"></td>
           </tr>      
         </table>
         <hr/>
-    
         <div>
             <h4 id="lblAddress" class="text-center"><span>Account Address:</span></h4>
             <h4 class="text-center"><b><span id="walletAddr"></span></b></h4>
