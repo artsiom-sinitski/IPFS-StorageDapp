@@ -74,7 +74,7 @@ App = {
     renderPage: function() {
         web3.eth.getCoinbase(function(error, account) {
             if (error) {
-                console.log(error);
+                console.error(error);
             } else {
                 console.log("Wallet account:", account);
                 $('#walletAddr').html(account);
@@ -87,7 +87,7 @@ App = {
     getBalance: function() {
         web3.eth.getBalance(App.account, function(error, balance) {
             if (error) {
-                console.log(error);
+                console.error(error);
             } else {
                 let bal = parseFloat(web3.fromWei(balance, "ether"));
                 console.log("Account balance: ", bal);
@@ -99,27 +99,31 @@ App = {
 
 
     bindEvents: function() {
-        $(document).on('click', '#FetchContentBtn', App.handleFetchContent);
+        $(document).on('click', '#btnFetchContent', App.handleFetchContent);
     },
 
 
     handleStoreContent: function() {
-        let url = $('#URLinput').val();
+        let url = $('#inputURL').val();
+        let mediaType = $("#selectMediaType option:selected").val();
+        let desc = $('#inputDescription').val();
 
         $.get(url).done(function(result) {
-            return App.storeContent(url);
+            return App.storeContent(url, mediaType, desc);
         }).fail(function(error) {
-            console.log("Invalid URL: ", error.status, error.statusText);
+            let errMsg = "Invalid URL: Content " + error.statusText + " (" + error.status + ')'
+            console.error(errMsg + error);
+            alert(errMsg);
         });
 
-        $('#URLinput').val('');
-        $('#DescriptionInput').val('');
-        $('#MediaTypeDropdown').val('').text();
+        $('#inputURL').val('');
+        $('#inputDescription').val('');
+        $('#selectMediaType').val('').text();
     },
 
 
     handleFetchContent: function() {
-        $('#StoredContentTable tbody').empty();
+        $('#tableStoredContent tbody').empty();
         return App.fetchContent();
     },
 
@@ -130,28 +134,29 @@ App = {
     //  (1) -->  https://www.ethereum.org/images/bad-robot@2x.png
     //  (2) -->  https://www.ethereum.org/images/tutorial/deploy-new-contract.png
     //  (3) -->  https://www.ethereum.org/images/tutorial/edit-contract.png
+    //  (4) -->  https://www.ethereum.org/images/tutorial/function-picker.png
     //
     //**************************************************************************** 
 
-    //TO DO: get the user input from a web page
-    storeContent: function(url) {
+    storeContent: function(url, mediaType, desc) {
         ipfs.add(url, function(error, result) {
             if (error) {
-                console.error("Content submission error:", error);
+                let errMsg = "Content submission error:" + error;
+                console.error(errMsg);
+                alert(errMsg);
                 return false;
             } else if (result && result[0] && result[0].Hash) {
                 let ipfsHash = result[0].Hash;
-                let mediaType = $('#MediaTypeDropdown :selected').text();
-                let desc = $('#DescriptionInput').val();
+ 
+                let msg = "Content successfully stored! IPFS address:" + '\n' + ipfsHash;
+                console.log(msg);
+                alert(msg);
 
-                console.log("storeContent->mediaType", mediaType);
-                console.log("storeContent->desc", desc);
-
-                console.log("Content successfully stored! IPFS address:");
-                console.log("IPFS hash: ", ipfsHash);
                 return App.storeAddress(ipfsHash, mediaType, desc);
             } else {
-                console.error("Unresolved content submission error!");
+                let errMsg = "Unresolved content submission error!"
+                console.error(errMs);
+                alert(errMsg);
                 return null;
             }
         });
@@ -161,17 +166,19 @@ App = {
     //TO DO: disallow adding duplicate media data entries (partially works):
     // currently, App.storeContent() function generates a new transactions
     // every time it is called, though storageContract never adds a duplicate entry
-    storeAddress: function(ipfsHash, mediaType, description) {
+    storeAddress: function(ipfsHash, mediaType, desc) {
         let storageInstance;
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
-            let metaData = {from: App.account, to: storageInstance.address, gas: 300000}
-            return storageInstance.storeMediaToIPFS.sendTransaction(ipfsHash, mediaType, description, metaData);        
+            let metaData = {from: App.account, to: storageInstance.address, gas: 300000};
+            return storageInstance.storeMediaToIPFS.sendTransaction(ipfsHash, mediaType, desc, metaData);
         }).then(function(result) {
-            console.log("Address successfully stored! Transaction hash:");
-            console.log(result);
+            let msg = "Address successfully stored! Transaction hash: " + '\n' + result;
+            console.log(msg);
         }).catch(function(error) {
-            console.log(error);
+            let errMsg = "Failed to store IPFS address!" + '\n';
+            console.error(errMsg + error);
+            alert(errMsg + error);
         });
     },
 
@@ -181,19 +188,17 @@ App = {
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
             return storageInstance.getStoredDataSize().then(function(len) {
-                //console.log("Storage Size: ", len.toNumber());
-                let length = len.toNumber();
-                for(let i = 0; i < length; i++) {
+                for(let i = 0; i < len.toNumber(); i++) {
                     storageInstance.getStoredDataRecordAtIndex(i).then(function(record) {
-                        console.log("Record("+ i +"): ", record);
-                        
-                        console.log("Content successfully retrieved! IPFS address:");
-                        console.log(record[0]);
+                        //console.log("Record("+ i +"): ", record);              
                         App.generateTableContent(record, i);
                     });
                 }
             });
         });
+        let msg = "All stored content successfully retrieved!"
+        console.log(msg);
+        alert(msg);
     },
 
 
@@ -208,7 +213,7 @@ App = {
             rowHTML += "<td title=\"" + dsc + "\">" + dsc + "</td>";
             rowHTML += "</tr>";
     
-        $(rowHTML).prependTo('#StoredContentTable tbody');
+        $(rowHTML).prependTo('#tableStoredContent tbody');
     }
 },
 

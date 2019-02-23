@@ -20,19 +20,13 @@ contract('IpfsStorage', function(accounts) {
             assert.equal(receipt.logs[0].args.ipfsAddress, ipfsAddress1, 'logs the IPFS hash');
             return storageInstance.getStoredDataSize();
         }).then(function(len) {
-            assert.equal(len, 1, 'should be stored only a single IPFS hash')
-            return storageInstance.getStoredDataType(ipfsAddress1);
-        }).then(function(result) {
-            assert.equal(result.toString(), mediaType1, 'has the correct media type 1');
-            return storageInstance.getStoredDataDescription(ipfsAddress1);
-        }).then(function(result) {
-            assert.equal(result.toString(), desc1, 'has the correct media description 1');
+            assert.equal(len, 1, 'should be stored only a single IPFS hash');
             return storageInstance.storeMediaToIPFS(ipfsAddress1, mediaType1, desc1);
         }).then(function(receipt) {
             assert.equal(receipt.logs.length, 0, 'no "MediaStoredOnIPFS" event trigerred');
             return storageInstance.getStoredDataSize();
         }).then(function(len) {
-            assert.equal(len.toNumber(), 1, 'should still be stored only a single IPFS hash')
+            assert.equal(len.toNumber(), 1, 'array should have 1 IPFS hash only');
             return storageInstance.storeMediaToIPFS(ipfsAddress2, mediaType2, desc2);
         }).then(function(receipt) {
             assert.equal(receipt.logs.length, 1, 'triggers exactly one event');
@@ -41,34 +35,24 @@ contract('IpfsStorage', function(accounts) {
             return storageInstance.getStoredDataSize();
         }).then(function(len) {
             assert.equal(len.toNumber(), 2, 'should now be stored 2 IPFS hashes');
-            return storageInstance.getStoredDataType(ipfsAddress2);
-        }).then(function(result) {
-            assert.equal(result.toString(), mediaType2, 'has the correct media type 2');
-            return storageInstance.getStoredDataDescription(ipfsAddress2);
-        }).then(function(result) {
-            assert.equal(result.toString(), desc2, 'has the correct media description 2');
-            return storageInstance.getStoredDataType("NonExistingKey1");
-        }).then(function(dataType) {
-            assert.equal(dataType.toString(), "null", 'this record should not exist');
-            return storageInstance.getStoredDataDescription("NonExistingKey1");
-        }).then(function(dataDescription) {
-            assert.equal(dataDescription.toString(), "null", 'this record should not exist');
             return storageInstance.getStoredDataIndex("NonExistingKey1");
         }).then(function(dataIndex) {
             assert.equal(dataIndex.toNumber(), -1, 'this key should not exist');
-            return storageInstance.getStoredKey(1);
-        }).then(function(ipfsHash) {
-            assert.equal(ipfsHash.toString(), ipfsAddress2, 'this key should not exist');
-            return storageInstance.getStoredKey(99);
-        }).then(function(ipfsHash) {
-            assert.equal(ipfsHash.toString(), "null", 'this key should not exist');
             return storageInstance.getStoredDataRecordAtIndex(1);
         }).then(function(result) {
             assert.equal(result.ipfsHash, ipfsAddress2, 'IPFS hash retrieved is not correct');
             assert.equal(result.mediaType, mediaType2, 'media type retrieved is not correct');
             assert.equal(result.desc, desc2, 'description retrieved is not correct');
-        });
-        // Add a test trying to retrieve a record with incorrect index
+            return storageInstance.keyExists(ipfsAddress1);
+        }).then(function(keyFound) {
+            assert.equal(keyFound, true, "this key1 should exist");
+            return storageInstance.keyExists(ipfsAddress2);
+        }).then(function(result) {
+            assert.equal(result, true, "this key2 should exist");
+            return storageInstance.keyExists("NonExistingKey");
+        }).then(function(result) {
+            assert.equal(result, false, "this key should NOT exist");
+        }); 
     });
 
 });

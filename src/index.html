@@ -12,99 +12,108 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
         
     <style>
-            h4 {
-              text-align: center;
-            }
+      h4 {
+        text-align: center;
+      }
 
-            hr {
-              width: 100%;
-            }
+      hr {
+        width: 99%;
+      }
 
-            span[id=walletAddr],
-            span[id=accountBalance] {
-                font-size: 14px;
-            }
-    
-            button[id=btnGetBalance] {
-              border-radius: 50%;
-              height: 26px;
-              width: 26px;
-              background: url('./images/Refresh-arrow.png');
-              background-color: #428BFF;
-              background-repeat: no-repeat;
-              background-position:center;
-              background-size: 19px;
-            }
-    
-            input[id=URLinput] {
-              width: 95%;
-            }
+      /* table [id=tblLogos]  {
+        width: 100%;
+        /*table-layout: auto;
+        margin-left: auto;
+        margin-right: auto;
+        border: 0px;
+      } */
 
-            select[id=MediaTypeDropdown] {
-              border-radius: 5%;
-              height: 34px;
-              float: left;
-              width: 25%
-            }
+      img {
+        width: 100px;
+        height: 90px;
+      }
 
-            input[id=DescriptionInput] {
-              width: 70%;
-              /* margin-left: 10px 50px;
-                 padding-left: 10px; */
-            }
-    
-            button[id=StoreContentBtn],
-            button[id=FetchContentBtn] {
-              width: 15%;
-              background-color: #428BFF;
-            }
+      span[id=walletAddr],
+      span[id=accountBalance] {
+          font-size: 14px;
+      }
 
-            button[id=FetchContentBtn] {
-              position: relative;
-              top: 50%;
-              left: 42%;
-            }
-    
-            section {
-              padding: 15px;
-            }
-    
-            #StoredContentTable {
-              font-family: arial, sans-serif;
-              border-collapse: collapse;
-              width: 100%;
-              table-layout: fixed;
-            }
-            
-           #StoredContentTable th, td {
-                border: 1px solid #dddddd;
-                padding: 8px;
-                width: 20%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            #StoredContentTable th {
-                background-color: #929DAF;
-                text-align: center;
-            }
-            #StoredContentTable td {
-                text-align: left;
-            }
-            #StoredContentTable tr:nth-child(even) {
-                background-color: #428BFF;
-                color: white;
-            }
-        </style>
+      button[id=btnGetBalance] {
+        border-radius: 50%;
+        height: 26px;
+        width: 26px;
+        background: url('./images/Refresh-arrow.png');
+        background-color: #428BFF;
+        background-repeat: no-repeat;
+        background-position:center;
+        background-size: 19px;
+      }
+
+      input[id=inputURL] {
+        width: 95%;
+      }
+
+      select[id=selectMediaType] {
+        border-radius: 5%;
+        height: 34px;
+        float: left;
+        width: 20%
+      }
+
+      input[id=inputDescription] {
+        width: 75%;
+      }
+
+      button[id=btnStoreContent],
+      button[id=btnFetchContent] {
+        width: 15%;
+        background-color: #428BFF;
+      }
+
+      button[id=btnFetchContent] {
+        position: relative;
+        top: 50%;
+        left: 42%;
+      }
+
+      #tableStoredContent {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+      }
+      #tableStoredContent th, td {
+          border: 1px solid #dddddd;
+          padding: 8px;
+          width: 20%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+      #tableStoredContent th {
+          background-color: #929DAF;
+          text-align: center;
+      }
+      #tableStoredContent td {
+          text-align: left;
+      }
+      #tableStoredContent tr:nth-child(even) {
+          background-color: #428BFF;
+          color: white;
+      }
+  </style>
 </head>
 
 <body>
     <h2 class="text-center">IPFS + Ethereum Storage Application</h2>
-    <div class="text-center">
-        (v1.0.0)<br/>Copyright © 2019 by Artsiom Sinitski
-    </div>
-    <hr/>
+    <div class="text-center">(v1.0.0)</div>
     <div class="container">
+          <span style="display:inline"><img src="images/Ethereum_logo.png"></span>
+          <span style="display:inline"><img src="images/ipfs-logo.svg"></span>
+          <br/>
+          <div class="text-center">Copyright © 2019 by Artsiom Sinitski</div>
+        
+        <hr/>
         <div>
             <h4 id="lblAddress" class="text-center"><span>Account Address:</span></h4>
             <h4 class="text-center"><b><span id="walletAddr"></span></b></h4>
@@ -116,24 +125,24 @@
         </div>
         <hr/>
         <div>
-            <form onSubmit="App.handleStoreContent(); return false;" role="form">
-                <input type="url" class="form-control" id="URLinput" placeholder="Enter content URL here..." required/>
-                <select id="MediaTypeDropdown" required>
-                    <option value=''>Select content type...</oprion>
+            <form id="frmUrlSubmit" onSubmit="App.handleStoreContent(); return false;">
+                <input type="url" class="form-control" id="inputURL" placeholder="Enter content URL here..." required/>
+                <select id="selectMediaType" required>
+                    <option value=''>Select content type</option>
                     <option value='image'>image</option>
                     <option value='video'>video</option>
                     <option value='audio'>audio</option>
                 </select>
-                <input type="text" class="form-control" id="DescriptionInput" placeholder="Enter content description here..." required/>
+                <input type="text" class="form-control" id="inputDescription" placeholder="Enter content description here..." required/>
                 <br/>
-                <button class="btn btn-primary" id="StoreContentBtn" type="submit">Store Content</button>
+                <button class="btn btn-primary" id="btnStoreContent" type="submit">Store Content</button>
             </form>
         </div>
         <hr/>
         <div>
-            <button class="btn btn-primary" id="FetchContentBtn" type="button">Fetch Content</button>
+            <button class="btn btn-primary" id="btnFetchContent" type="button">Fetch Content</button>
             <br/><br/>
-            <table id="StoredContentTable">
+            <table id="tableStoredContent">
                 <colgroup>
                     <col style="width:30%">
                     <col style="width:13%">
@@ -151,7 +160,7 @@
         <hr/>
     
 
-    <h4>Directions:</h4>
+    <h4>Instructions:</h4>
     <p>Start by opening the browser's developer console. Verify that the console shows successful connections to the IPFS and geth clients. The following steps will guide You through operating this data storage solution using IPFS and Ethereum.</p>
 
     <ol>
@@ -162,7 +171,8 @@
         <li>Press the <code>Fetch Content</code> button to gets all the stored content including the last stored IPFS address, associated URL, media type and description.</li>
     </ol>
     <hr/>
-    <p>Here is a concrete example:</br>
+    <p>Here is a concrete example:
+    <br/><br/>
         Let's say we want to upload an image of the <a href="https://ethereum.org/images/wallpaper-homestead.jpg">Ethereum Homestead wallpaper</a>. For example purposes, my IPFS hash address for this wallpaper resolves to "QmPJLNMiAp3QoCKdGAgzshNRbQiZ8wQmyjYkcUHJZzQ19u". Then we have all the pieces to run the Storage Dapp.</p>
 
     <ol>
@@ -170,6 +180,9 @@
         <li>Press the <code>Store Content</code> button</li>
         <li>Press the <code>Fetch Content</code> button to view stored content</li>
     </ol>
+    <p>
+      <strong>Note:</strong> Due to the asynchronous nature of the blockchain You might not see the newly stored content right away. Don't panic, just give it some time and then fetch it again!
+    </p>
     <hr/>
 
     <p>Also, You can check your Ethereum wallet's balance by clicking the <code>Refresh Balance</code> button (the blue round one at the top of the web page, next to "Account balance"')</p>
