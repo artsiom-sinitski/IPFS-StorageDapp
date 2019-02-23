@@ -20,17 +20,15 @@
         width: 99%;
       }
 
-      /* table [id=tblLogos]  {
+      #tblLogos  {
         width: 100%;
-        /*table-layout: auto;
-        margin-left: auto;
-        margin-right: auto;
+        table-layout: fixed;
         border: 0px;
-      } */
+      }
 
       img {
-        width: 100px;
-        height: 90px;
+        width: 70px;
+        height: 60px;
       }
 
       span[id=walletAddr],
@@ -106,14 +104,25 @@
 
 <body>
     <h2 class="text-center">IPFS + Ethereum Storage Application</h2>
-    <div class="text-center">(v1.0.0)</div>
-    <div class="container">
-          <span style="display:inline"><img src="images/Ethereum_logo.png"></span>
-          <span style="display:inline"><img src="images/ipfs-logo.svg"></span>
-          <br/>
-          <div class="text-center">Copyright © 2019 by Artsiom Sinitski</div>
-        
+    <div class="text-center">
+      <label>(v1.0.0)</label>
+    </div>
+
+    <div class="container"></div>
+      <table id="tblLogos">
+          <colgroup>
+            <col style="width:35%">
+            <col style="width:30%">
+            <col style="width:35%">
+          </colgroup>
+          <tr class="text-center">
+              <td><img src="images/Ethereum_logo.png"></td>
+              <td>Copyright © 2019 <br/> by <br/>Artsiom Sinitski</td>
+              <td><img src="images/ipfs-logo.svg"></td>
+          </tr>      
+        </table>
         <hr/>
+    
         <div>
             <h4 id="lblAddress" class="text-center"><span>Account Address:</span></h4>
             <h4 class="text-center"><b><span id="walletAddr"></span></b></h4>

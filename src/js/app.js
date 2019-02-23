@@ -37,22 +37,21 @@ App = {
 
 
     /* web3 initialization */
-    //TO DO: implement MetaMask functionality
     initWeb3: function() {
-        /*if (typeof web3 !== 'undefined') {
+        if (typeof web3 !== 'undefined') {
             // If a web3 instance is already provided by Meta Mask.
             App.web3Provider = web3.currentProvider;
             web3 = new Web3(web3.currentProvider);
-        } else {*/
+        } else {
             // Specify default instance if no web3 instance provided
             App.web3Provider = new Web3.providers.HttpProvider("http://" + App.web3Host + ':' + App.web3Port);
             web3 = new Web3(App.web3Provider);
-            if (!web3.isConnected()) {
-                console.error("Ethereum - no connection to RPC server");
-            } else {
-                console.log("Ethereum - connected to RPC server");
-            }
-        //}
+        }
+        if (!web3.isConnected()) {
+            console.error("Ethereum - no connection to RPC server");
+        } else {
+            console.log("Ethereum - connected to RPC server");
+        }
         return App.initStorage();
     },
 
