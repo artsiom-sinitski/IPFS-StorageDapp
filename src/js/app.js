@@ -187,8 +187,7 @@ App = {
             storageInstance = instance;
             return storageInstance.getStoredDataSize().then(function(len) {
                 for(let i = 0; i < len.toNumber(); i++) {
-                    storageInstance.getStoredDataRecordAtIndex(i).then(function(record) {
-                        //console.log("Record("+ i +"): ", record);              
+                    storageInstance.getStoredDataRecordAtIndex(i).then(function(record) {              
                         App.generateTableContent(record, i);
                     });
                 }
