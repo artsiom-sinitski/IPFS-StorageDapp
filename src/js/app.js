@@ -183,19 +183,26 @@ App = {
     
     fetchContent: function() {
         let storageInstance;
+        let dataSize;
         App.contracts.ipfsStorage.deployed().then(function(instance) {
             storageInstance = instance;
             return storageInstance.getStoredDataSize().then(function(len) {
-                for(let i = 0; i < len.toNumber(); i++) {
+                dataSize = len.toNumber();
+                for(let i = 0; i < dataSize; i++) {
                     storageInstance.getStoredDataRecordAtIndex(i).then(function(record) {              
                         App.generateTableContent(record, i);
                     });
                 }
             });
+        }).then(function() {
+            let msg = "Records successfully retrieved: " + dataSize;
+            console.log(msg);
+            alert(msg);
+        }).catch(function(error) {
+            let msg = "Failed to fetch stored content!" + '\n';
+            console.error(msg + error);
+            alert(msg + error);
         });
-        let msg = "All stored content successfully retrieved!"
-        console.log(msg);
-        alert(msg);
     },
 
 
