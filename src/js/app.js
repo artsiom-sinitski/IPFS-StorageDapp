@@ -88,7 +88,7 @@ App = {
             if (error) {
                 console.error(error);
             } else {
-                let bal = parseFloat(web3.fromWei(balance, "ether"));
+                let bal = parseFloat(web3.fromWei(balance, "ether")).toFixed(3);
                 console.log("Account balance: ", bal);
                 $('#accountBalance').html(bal);
             }
@@ -162,9 +162,8 @@ App = {
     },
 
 
-    //TO DO: disallow adding duplicate media data entries (partially works):
-    // currently, App.storeContent() function generates a new transactions
-    // every time it is called, though storageContract never adds a duplicate entry
+    //TO DO: display a warning to a user if he attempts to store duplicate content.
+    // Currently, the storage contract programmatically doesn't allow this anyway
     storeAddress: function(ipfsHash, mediaType, desc) {
         let storageInstance;
         App.contracts.ipfsStorage.deployed().then(function(instance) {
