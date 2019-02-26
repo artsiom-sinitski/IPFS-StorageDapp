@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 contract IpfsStorage {
     //************ STATE DATA ***************
     //***************************************
+    address payable private admin;
 
     //stores IPFS object's meta data
     struct IPFSmetaData {
@@ -21,7 +22,9 @@ contract IpfsStorage {
 
     //****** Contract Public Interface ******
     //***************************************
-    constructor() public {}
+    constructor() public {
+        admin = msg.sender;
+    }
 
 
     function storeMediaToIPFS(string memory _ipfsAddress,
@@ -43,8 +46,6 @@ contract IpfsStorage {
     function getStoredDataIndex(string memory _ipfsAddress)
       public view returns (int dataIndex) {
         require(keyExists(_ipfsAddress) == true, "The key is not found!");
-        // if ( !keyExists(_ipfsAddress) )
-        //   return -1;
         return storedData[_ipfsAddress].index;
     }
 
@@ -77,4 +78,9 @@ contract IpfsStorage {
         return (keccak256(_bk) == keccak256(bk1));
     }
 
+
+    function removeStorageContract() public {
+        require(msg.sender == admin);
+        selfdestruct(admin);
+    }
 }

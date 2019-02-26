@@ -1,6 +1,11 @@
 var IpfsStorage = artifacts.require("./IpfsStorage.sol");
 
 contract('IpfsStorage', function(accounts) {
+    let admin = accounts[0];
+    let someUser = accounts[1];
+
+    let instanceAddr = null;
+
     let ipfsAddress1 = "QmWmyoMoctfbAaiEs2G46gpeUmhqFRDW6KWo64y5r581Vz";
     let ipfsAddress2 = "QmWmyoMoctfbAaiEs2GFLRHEUIPH8afierertdfHRE1243";
 
@@ -55,6 +60,29 @@ contract('IpfsStorage', function(accounts) {
         }).then(function(result) {
             assert.equal(result, false, "this key should NOT exist");
         }); 
+    });
+
+    it("Removes the contract from the blockcahin", function() {
+        return IpfsStorage.deployed().then(function(instance) {
+            storageInstance = instance;
+            // console.log("Instance", instance.address);
+            // console.log("storageInstance", storageInstance.address);
+            instanceAddr = storageInstance.address;
+            return storageInstance.removeStorageContract({from: someUser});
+        }).then(assert.fail).catch(function(error) {
+            assert(error.message.indexOf('revert') >= 0, "this user cannot perform this operation");
+        }).then(function() {
+            return web3.eth.getCode(storageInstance.address);
+        }).then(function(result) {
+            let res = result.toString()
+            assert.isAbove(res.length, 2);
+            assert.notEqual(res, "x0", "contract code should still exist");
+            return storageInstance.removeStorageContract({from: admin});
+        }).then(function(receipt) {
+            return web3.eth.getCode(storageInstance.address);
+        }).then(function(result) {
+            assert.equal(result.toString(), "0x", "contract code should be gone now");
+        });
     });
 
 });
