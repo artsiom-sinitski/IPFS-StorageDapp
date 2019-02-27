@@ -1,6 +1,6 @@
 build/
 node_modules/
-.secret
+.env
 .vscode
 .project
 *.txt
